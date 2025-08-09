@@ -1,0 +1,69 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: aici_user
+      POSTGRES_PASSWORD: aici_password
+      POSTGRES_DB: aici_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  user-service:
+    build: ./user-service
+    container_name: user_service
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://aici_user:aici_password@postgres:5432/aici_db
+      - JWT_SECRET=your-super-secret-jwt-key-here
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+
+  todo-service:
+    build: ./todo-service
+    container_name: todo_service
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://aici_user:aici_password@postgres:5432/aici_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_app
+    restart: always
+    ports:
+      - "4179:4179"
+    environment:
+      - VITE_USER_SERVICE_URL=http://user-service:3000
+      - VITE_TODO_SERVICE_URL=http://todo-service:3001
+    depends_on:
+      - user-service
+      - todo-service
+
+volumes:
+  postgres_data:
+  redis_data:
