@@ -38,7 +38,7 @@ export async function registerUser(userData: UserInterface) {
         status: "active",
       },
     });
-    return user;
+    return { user_email: user.user_email, uuid: user.uuid };
   });
 
   return newUser;

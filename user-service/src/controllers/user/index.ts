@@ -26,7 +26,6 @@ router.post(
         email,
         password,
       });
-      req.body.password = "[REDACTED]";
       res.status(201).json({
         isError: false,
         body: {

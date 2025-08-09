@@ -56,17 +56,18 @@ describe("Register User", () => {
 
 describe("Login User", () => {
   const uniqueEmail = `testuser_${Date.now()}@example.com`;
+  const password = "SecurePassword123";
   it("should login successfully and return 200 with JWT", async () => {
     await axios.post(`${BASE_URL}/api/users/register`, {
       first_name: "Login",
       last_name: "User",
       email: uniqueEmail,
-      password: "securePassword123",
+      password,
     });
     // Now login
     const response = await axios.post(`${BASE_URL}/api/users/login`, {
       email: uniqueEmail,
-      password: "securePassword123",
+      password,
     });
     expect(response.status).toBe(200);
     expect(response.data).toHaveProperty("token");
